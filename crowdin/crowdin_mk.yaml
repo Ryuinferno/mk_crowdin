@@ -93,6 +93,12 @@ files:
       - /**/mk_colors.xml
       - /**/mk_dimens.xml
       - /**/mk_integers.xml
+      - /**/mk_attrs.xml
+      - /**/mk_styles.xml
+      - /**/mk_analytics.xml
+      - /**/mk_config.xml
+      - /**/mk_symbols.xml
+      - /**/mk*donottranslate*.xml
       - /device/**/overlay/**/*.xml
       - /development/**/*.xml
 

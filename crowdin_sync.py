@@ -79,7 +79,6 @@ print('Welcome to the MK Crowdin sync script!')
 
 parser = argparse.ArgumentParser(description='Synchronising MoKee OpenSource\'s translations with Crowdin')
 parser.add_argument('--username', help='Gerrit username', required=True)
-#parser.add_argument('--upload-only', help='Only upload MK source translations to Crowdin', required=False)
 args = vars(parser.parse_args())
 
 username = args['username']
@@ -129,9 +128,13 @@ print('Default branch: ' + default_branch)
 
 ############################################## STEP 1 ##############################################
 
-print('\nSTEP 1: Upload Crowdin source translations')
+print('\nSTEP 1A: Upload Crowdin source translations')
 # Execute 'crowdin-cli upload sources' and show output
 print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'sources']))
+
+print('\nSTEP 1B: Upload existing Crowdin source translations')
+# Execute 'crowdin-cli upload translations' and show output
+print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'translations']))
 
 ############################################## STEP 2 ##############################################
 

@@ -189,6 +189,9 @@ for path in iter(proc.stdout.readline,''):
         result = i
         break
 
+    if "MoKeeHelper" in result:
+        result = '/'.join(result.split('/')[0:3])
+
     if result in all_projects:
         # Already committed for this project, go to next project
         continue

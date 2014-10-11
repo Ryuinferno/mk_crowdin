@@ -1,5 +1,5 @@
 [gerrit]
-host=review.cyanogenmod.org
+host=review.mfunz.com
 port=29418
-project=CyanogenMod/cm_crowdin
+project=MoKee/mk_crowdin
 defaultbranch=master

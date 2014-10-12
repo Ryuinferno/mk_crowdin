@@ -33,6 +33,10 @@ files:
         da: da
         de: de
         el: el
+        en-AU: en-rAU
+        en-IN: en-rIN
+        en-NZ: en-rNZ
+        en-GB: en-rGB
         es-ES: es
         fi: fi
         fr: fr

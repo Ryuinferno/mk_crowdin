@@ -28,6 +28,10 @@ Execute:
 
     ./crowdin_sync.py --username your_gerrit_username
 
+To upload only, execute the following:
+
+    ./crowdin_sync.py --username your_gerrit_username --upload
+
 Bugs
 ----
  - When committing fails, the reason of it cannot be determined. Often this is just when there

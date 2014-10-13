@@ -79,6 +79,7 @@ print('Welcome to the MK Crowdin sync script!')
 
 parser = argparse.ArgumentParser(description='Synchronising MoKee OpenSource\'s translations with Crowdin')
 parser.add_argument('--username', help='Gerrit username', required=True)
+parser.add_argument('--upload', help='Upload only', action="store_true", required=False)
 args = vars(parser.parse_args())
 
 username = args['username']
@@ -138,82 +139,83 @@ print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml'
 
 ############################################## STEP 2 ##############################################
 
-print('\nSTEP 4: Download Crowdin translations')
-# Execute 'crowdin-cli download' and show output
-print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'download']))
+if not args['upload']:
+    print('\nSTEP 4: Download Crowdin translations')
+    # Execute 'crowdin-cli download' and show output
+    print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'download']))
 
-############################################## STEP 3 ##############################################
+    ############################################## STEP 3 ##############################################
 
-print('\nSTEP 3: Remove useless empty translations')
-# Some line of code that I found to find all XML files
-result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(os.getcwd()) for f in filenames if os.path.splitext(f)[1] == '.xml']
-empty_contents = {'<resources/>', '<resources xmlns:android="http://schemas.android.com/apk/res/android"/>', '<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"/>', '<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"/>'}
-for xml_file in result:
-    for line in empty_contents:
-        if line in open(xml_file).read():
-            print('Removing ' + xml_file)
-            os.remove(xml_file)
+    print('\nSTEP 3: Remove useless empty translations')
+    # Some line of code that I found to find all XML files
+    result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(os.getcwd()) for f in filenames if os.path.splitext(f)[1] == '.xml']
+    empty_contents = {'<resources/>', '<resources xmlns:android="http://schemas.android.com/apk/res/android"/>', '<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"/>', '<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"/>'}
+    for xml_file in result:
+        for line in empty_contents:
+            if line in open(xml_file).read():
+                print('Removing ' + xml_file)
+                os.remove(xml_file)
+                break
+
+    ############################################## STEP 4 ##############################################
+
+    print('\nSTEP 4: Create a list of pushable translations')
+    # Get all files that Crowdin pushed
+    proc = subprocess.Popen(['crowdin-cli --config=crowdin/crowdin_mk.yaml --identity=crowdin/config_mk.yaml list sources'], stdout=subprocess.PIPE, shell=True)
+    proc.wait() # Wait for the above to finish
+
+    ############################################## STEP 5 ##############################################
+
+    print('\nSTEP 5: Commit to Gerrit')
+    items = xml_android.getElementsByTagName('project')
+    all_projects = []
+
+    for path in iter(proc.stdout.readline,''):
+        # Remove the \n at the end of each line
+        path = path.rstrip()
+
+        if not path:
+            continue
+
+        # Get project root dir from Crowdin's output by regex
+        m = re.search('/(frameworks/base).*|/(.*)/res/values.*', path)
+
+        if not m.groups():
+            # Regex result is empty, warn the user
+            print('WARNING: Cannot determine project root dir of [' + path + '], skipping')
+            continue
+
+        for i in m.groups():
+            if not i:
+                continue
+            result = i
             break
 
-############################################## STEP 4 ##############################################
+        if "MoKeeHelper" in result:
+            result = '/'.join(result.split('/')[0:3])
 
-print('\nSTEP 4: Create a list of pushable translations')
-# Get all files that Crowdin pushed
-proc = subprocess.Popen(['crowdin-cli --config=crowdin/crowdin_mk.yaml --identity=crowdin/config_mk.yaml list sources'], stdout=subprocess.PIPE, shell=True)
-proc.wait() # Wait for the above to finish
-
-############################################## STEP 5 ##############################################
-
-print('\nSTEP 5: Commit to Gerrit')
-items = xml_android.getElementsByTagName('project')
-all_projects = []
-
-for path in iter(proc.stdout.readline,''):
-    # Remove the \n at the end of each line
-    path = path.rstrip()
-
-    if not path:
-        continue
-
-    # Get project root dir from Crowdin's output by regex
-    m = re.search('/(frameworks/base).*|/(.*)/res/values.*', path)
-
-    if not m.groups():
-        # Regex result is empty, warn the user
-        print('WARNING: Cannot determine project root dir of [' + path + '], skipping')
-        continue
-
-    for i in m.groups():
-        if not i:
-            continue
-        result = i
-        break
-
-    if "MoKeeHelper" in result:
-        result = '/'.join(result.split('/')[0:3])
-
-    if result in all_projects:
-        # Already committed for this project, go to next project
-        continue
-
-    # When a project has multiple translatable files, Crowdin will give duplicates.
-    # We don't want that (useless empty commits), so we save each project in all_projects
-    # and check if it's already in there.
-    all_projects.append(result)
-
-    # Search in android/default.xml for the project's name
-    for project_item in items:
-        if project_item.attributes['path'].value != result:
-            # No match found, go to next item
+        if result in all_projects:
+            # Already committed for this project, go to next project
             continue
 
-        # Define branch (custom branch if defined in xml file, otherwise the default one)
-        if project_item.hasAttribute('revision'):
-            branch = project_item.attributes['revision'].value
-        else:
-            branch = default_branch
+        # When a project has multiple translatable files, Crowdin will give duplicates.
+        # We don't want that (useless empty commits), so we save each project in all_projects
+        # and check if it's already in there.
+        all_projects.append(result)
 
-        push_as_commit(result, project_item.attributes['name'].value, branch, username)
+        # Search in android/default.xml for the project's name
+        for project_item in items:
+            if project_item.attributes['path'].value != result:
+                # No match found, go to next item
+                continue
+
+            # Define branch (custom branch if defined in xml file, otherwise the default one)
+            if project_item.hasAttribute('revision'):
+                branch = project_item.attributes['revision'].value
+            else:
+                branch = default_branch
+
+            push_as_commit(result, project_item.attributes['name'].value, branch, username)
 
 ############################################### DONE ###############################################
 

@@ -66,10 +66,11 @@ def push_as_commit(path, name, branch, username):
         print('Failed to create commit for ' + name + ', probably empty: skipping')
         return
 
-    # Push commit
-    repo.git.push('ssh://' + username + '@review.mfunz.com:29418/' + name, 'HEAD:refs/for/' + branch + '%topic=translation')
-
-    print('Succesfully pushed commit for ' + name)
+    try:
+        repo.git.push('ssh://' + username + '@review.mfunz.com:29418/' + name, 'HEAD:refs/for/' + branch + '%topic=translation')
+        print('Succesfully pushed commit for ' + name)
+    except:
+        print('Failed to push commit for ' + name)
 
 ###################################################################################################
 

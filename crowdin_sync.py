@@ -72,20 +72,23 @@ def push_as_commit(path, name, branch, username):
     except:
         print('Failed to push commit for ' + name)
 
-###################################################################################################
+####################################################################################################
 
 print('Welcome to the MK Crowdin sync script!')
 
-###################################################################################################
+####################################################################################################
 
 parser = argparse.ArgumentParser(description='Synchronising MoKee OpenSource\'s translations with Crowdin')
-parser.add_argument('--username', help='Gerrit username', required=True)
-parser.add_argument('--upload', help='Upload only', action="store_true", required=False)
-args = vars(parser.parse_args())
+sync = parser.add_mutually_exclusive_group()
+parser.add_argument('-u', '--username', help='Gerrit username', required=True)
+sync.add_argument('--no-upload', action='store_true', help='Only download MK translations from Crowdin')
+sync.add_argument('--no-download', action='store_true', help='Only upload MK source translations to Crowdin')
+args = parser.parse_args()
+argsdict = vars(args)
 
-username = args['username']
+username = argsdict['username']
 
-############################################## STEP 0 ##############################################
+############################################# PREPARE ##############################################
 
 print('\nSTEP 0A: Checking dependencies')
 # Check for Ruby version of crowdin-cli
@@ -128,24 +131,19 @@ xml_android = minidom.parse('android/default.xml')
 default_branch = get_default_branch(xml_android)
 print('Default branch: ' + default_branch)
 
-############################################## STEP 1 ##############################################
+############################################### MAIN ###############################################
 
-print('\nSTEP 1A: Upload Crowdin source translations')
-# Execute 'crowdin-cli upload sources' and show output
-print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'sources']))
+if not args.no_upload:
+    print('\nSTEP 1: Upload Crowdin source translations')
+    # Execute 'crowdin-cli upload sources' and show output
+    print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'sources']))
+else:
+    print('\nSkipping source translations upload')
 
-print('\nSTEP 1B: Upload existing Crowdin source translations')
-# Execute 'crowdin-cli upload translations' and show output
-print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'translations']))
-
-############################################## STEP 2 ##############################################
-
-if not args['upload']:
-    print('\nSTEP 4: Download Crowdin translations')
+if not args.no_download:
+    print('\nSTEP 2: Download Crowdin translations')
     # Execute 'crowdin-cli download' and show output
     print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'download']))
-
-    ############################################## STEP 3 ##############################################
 
     print('\nSTEP 3: Remove useless empty translations')
     # Some line of code that I found to find all XML files
@@ -158,16 +156,12 @@ if not args['upload']:
                 os.remove(xml_file)
                 break
 
-    ############################################## STEP 4 ##############################################
-
     print('\nSTEP 4: Create a list of pushable translations')
     # Get all files that Crowdin pushed
     proc = subprocess.Popen(['crowdin-cli --config=crowdin/crowdin_mk.yaml --identity=crowdin/config_mk.yaml list sources'], stdout=subprocess.PIPE, shell=True)
     proc.wait() # Wait for the above to finish
 
-    ############################################## STEP 5 ##############################################
-
-    print('\nSTEP 5: Commit to Gerrit')
+    print('\nSTEP 5: Upload to Gerrit')
     items = xml_android.getElementsByTagName('project')
     all_projects = []
 
@@ -217,6 +211,8 @@ if not args['upload']:
                 branch = default_branch
 
             push_as_commit(result, project_item.attributes['name'].value, branch, username)
+else:
+    print('\nSkipping translations download')
 
 ############################################### DONE ###############################################
 

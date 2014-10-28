@@ -80,6 +80,18 @@ files:
     translation: '/%original_path%-%android_code%/%original_file_name%'
     languages_mapping: *anchor
 
+  # MoKeeScreenRecorder
+  -
+    source:      '/packages/apps/MoKeeScreenRecorder/res/values/strings.xml'
+    translation: '/%original_path%-%android_code%/%original_file_name%'
+    languages_mapping: *anchor
+
+  # MoKeeSetupWizard
+  -
+    source:      '/packages/apps/MoKeeSetupWizard/res/values/strings.xml'
+    translation: '/%original_path%-%android_code%/%original_file_name%'
+    languages_mapping: *anchor
+
   # MoKeeHelper
   -
     source:      '/external/mokee/MoKeeHelper/MoKeeHelper/res/values/strings.xml'

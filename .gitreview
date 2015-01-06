@@ -2,4 +2,4 @@
 host=review.mfunz.com
 port=29418
 project=MoKee/mk_crowdin
-defaultbranch=master
+defaultbranch=kk_mkt

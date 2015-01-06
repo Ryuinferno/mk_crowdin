@@ -5,7 +5,7 @@
 # Updates Crowdin source translations and pushes translations
 # directly to MoKee OpenSource's Gerrit.
 #
-# Copyright (C) 2014 The MoKee OpenSource Project
+# Copyright (C) 2015 The MoKee OpenSource Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

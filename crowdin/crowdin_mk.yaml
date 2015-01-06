@@ -2,7 +2,7 @@
 #
 # Crowdin configuration file for MoKee OpenSource
 #
-# Copyright (C) 2014 The MoKee OpenSource Project
+# Copyright (C) 2015 The MoKee OpenSource Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project_identifier: mokee-opensource
+project_identifier: mokee-opensource-mkl
 preserve_hierarchy: true
 
 files:
@@ -74,24 +74,6 @@ files:
 
 # Other projects
 
-  # Apollo
-  -
-    source:      '/packages/apps/Apollo/res/values/mk_strings.xml'
-    translation: '/%original_path%-%android_code%/%original_file_name%'
-    languages_mapping: *anchor
-
-  # MoKeeScreenRecorder
-  -
-    source:      '/packages/apps/MoKeeScreenRecorder/res/values/strings.xml'
-    translation: '/%original_path%-%android_code%/%original_file_name%'
-    languages_mapping: *anchor
-
-  # MoKeeSetupWizard
-  -
-    source:      '/packages/apps/MoKeeSetupWizard/res/values/strings.xml'
-    translation: '/%original_path%-%android_code%/%original_file_name%'
-    languages_mapping: *anchor
-
   # MoKeeHelper
   -
     source:      '/external/mokee/MoKeeHelper/MoKeeHelper/res/values/strings.xml'
@@ -101,11 +83,5 @@ files:
   # SystemUIExt
   -
     source:      '/frameworks/base/packages/SystemUIExt/res/values/strings.xml'
-    translation: '/%original_path%-%android_code%/%original_file_name%'
-    languages_mapping: *anchor
-
-  # MoKeeServices
-  -
-    source:      '/frameworks/base/packages/MoKeeServices/res/values/strings.xml'
     translation: '/%original_path%-%android_code%/%original_file_name%'
     languages_mapping: *anchor

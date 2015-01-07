@@ -134,9 +134,12 @@ print('Default branch: ' + default_branch)
 ############################################### MAIN ###############################################
 
 if not args.no_upload:
-    print('\nSTEP 1: Upload Crowdin source translations')
+    print('\nSTEP 1A: Upload Crowdin source translations')
     # Execute 'crowdin-cli upload sources' and show output
     print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'sources']))
+    print('\nSTEP 1B: Upload existing Crowdin source translations')
+    # Execute 'crowdin-cli upload translations' and show output
+    print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'translations']))
 else:
     print('\nSkipping source translations upload')
 

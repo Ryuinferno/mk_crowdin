@@ -91,3 +91,9 @@ files:
     source:      '/packages/apps/ScreenRecorder/res/values/strings.xml'
     translation: '/%original_path%-%android_code%/%original_file_name%'
     languages_mapping: *anchor
+
+  # MoKeeSetupWizard
+  -
+    source:      '/packages/apps/MoKeeSetupWizard/res/values/strings.xml'
+    translation: '/%original_path%-%android_code%/%original_file_name%'
+    languages_mapping: *anchor

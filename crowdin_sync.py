@@ -81,12 +81,14 @@ print('Welcome to the MK Crowdin sync script!')
 parser = argparse.ArgumentParser(description='Synchronising MoKee OpenSource\'s translations with Crowdin')
 sync = parser.add_mutually_exclusive_group()
 parser.add_argument('-u', '--username', help='Gerrit username', required=True)
+parser.add_argument('--upload-existing', action='store_true', help='Upload existing MK translations to Crowdin', required=False)
 sync.add_argument('--no-upload', action='store_true', help='Only download MK translations from Crowdin')
 sync.add_argument('--no-download', action='store_true', help='Only upload MK source translations to Crowdin')
 args = parser.parse_args()
 argsdict = vars(args)
 
 username = argsdict['username']
+upload_existing = argsdict['upload_existing']
 
 ############################################# PREPARE ##############################################
 
@@ -137,9 +139,10 @@ if not args.no_upload:
     print('\nSTEP 1A: Upload Crowdin source translations')
     # Execute 'crowdin-cli upload sources' and show output
     print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'sources']))
-    print('\nSTEP 1B: Upload existing Crowdin source translations')
-    # Execute 'crowdin-cli upload translations' and show output
-    print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'translations']))
+    if upload_existing:
+        print('\nSTEP 1B: Upload existing Crowdin source translations')
+        # Execute 'crowdin-cli upload translations' and show output
+        print(subprocess.check_output(['crowdin-cli', '--config=crowdin/crowdin_mk.yaml', '--identity=crowdin/config_mk.yaml', 'upload', 'translations']))
 else:
     print('\nSkipping source translations upload')
 

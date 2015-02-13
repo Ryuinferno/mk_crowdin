@@ -26,7 +26,7 @@ Copy all files to the root of your local copy of MoKee OpenSource's source code.
 Edit crowdin/config_mk.yaml to set the api key & your current MoKee OpenSource path.
 Execute:
 
-    ./crowdin_sync.py --username your_gerrit_username [--no-download|--no-upload]
+    ./crowdin_sync.py --username your_gerrit_username [--no-download|--no-upload|--upload-existing]
 
 Bugs
 ----
